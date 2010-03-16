@@ -19,17 +19,27 @@
 set -e
 
 removebzr="no"
+verbose="no"
+
 for x in $@; do
   if [ "$x" = "--removebzr" ]; then removebzr="yes"
+
+  if [ "$x" = "-v" ] || [ "$x" = "--verbose" ]; then verbose="yes"; fi
+
   elif [ "$x" = "--help" ]; then
     echo "--removebzr = Remove the .bzr directory so that it can't be used by bazaar"
+    echo "-v --verbose = Show processiong messages"
     echo "--help    = Display this list"
     exit
+
   else echo "${x}: unknown argument, type --help to see available arguments"; exit 1; fi
 done
 
 rev=1
 git init
+
+[ "$verbose" != "yes" ] echo "Start Migration"
+
 while bzr revert -r revno:$rev 2> /dev/null; do
   logentry="`bzr log -r $rev`"
   committer="`echo "$logentry" | sed -n -e "/^committer:/{s/^committer: //;p;}"`"
@@ -45,3 +55,9 @@ while bzr revert -r revno:$rev 2> /dev/null; do
 done
 
 [ "$removebzr" != "yes" ] && rm -r .bzr
+
+[ "$verbose" != "yes" ] echo "Start Packing"
+#Let's pack the newly created repo
+git gc --aggressive
+
+[ "$verbose" != "yes" ] echo "Migration Successfully ended"
