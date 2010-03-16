@@ -54,6 +54,11 @@ while bzr revert -r revno:$rev 2> /dev/null; do
   let rev+=1
 done
 
+if [ -f .bzrignore ] then
+  cp  .bzrignore .gitignore
+  git commit -a -m "Adding Ignore file"
+fi
+
 [ "$removebzr" != "yes" ] && rm -r .bzr
 
 [ "$verbose" != "yes" ] echo "Start Packing"
