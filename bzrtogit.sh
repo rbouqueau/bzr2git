@@ -15,11 +15,14 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-keepbzr="no"
+# bail on errors
+set -e
+
+removebzr="no"
 for x in $@; do
-  if [ "$x" = "--keepbzr" ]; then keepbzr="yes"
+  if [ "$x" = "--removebzr" ]; then removebzr="yes"
   elif [ "$x" = "--help" ]; then
-    echo "--keepbzr = Keep the .bzr directory so that it can still be used by bazaar"
+    echo "--removebzr = Remove the .bzr directory so that it can't be used by bazaar"
     echo "--help    = Display this list"
     exit
   else echo "${x}: unknown argument, type --help to see available arguments"; exit 1; fi
@@ -32,11 +35,8 @@ while bzr revert -r revno:$rev 2> /dev/null; do
   committer="`echo "$logentry" | sed -n -e "/^committer:/{s/^committer: //;p;}"`"
   timestamp="`echo "$logentry" | sed -n -e "/^timestamp:/{s/^timestamp: //;p;}"`"
   export GIT_AUTHOR_DATE="$timestamp"
+  export GIT_COMMITTER_DATE="$timestamp"
   msg="`echo "$logentry" | sed -e "1,/^message:/d"`"
-#  committer_name="`echo "$committer" | sed -e "s/ *<[^<]*\$//;"`"
-#  committer_email="`echo "$committer" | sed -e "s/.*<//;s/>//;"`"
-#  git config user.name "$committer_name"
-#  git config user.email "$committer_email"
   ls -a1 | while read x; do
     if [ "$x" != ".bzr" ] && [ "$x" != "." ] && [ "$x" != ".." ]; then git add "$x"; fi
   done
@@ -44,4 +44,4 @@ while bzr revert -r revno:$rev 2> /dev/null; do
   let rev+=1
 done
 
-[ "$keepbzr" != "yes" ] && rm -r .bzr
+[ "$removebzr" != "yes" ] && rm -r .bzr
