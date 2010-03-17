@@ -20,16 +20,20 @@ set -e
 
 removebzr="no"
 verbose="no"
+with_ignore="no"
 
 for x in $@; do
   if [ "$x" = "--removebzr" ]; then removebzr="yes"
 
-  if [ "$x" = "-v" ] || [ "$x" = "--verbose" ]; then verbose="yes"; fi
+  elif [ "$x" = "-v" ] || [ "$x" = "--verbose" ]; then verbose="yes"
+
+  elif [ "$x" = "--with-ignore" ]; then with_ignore="yes"
 
   elif [ "$x" = "--help" ]; then
-    echo "--removebzr = Remove the .bzr directory so that it can't be used by bazaar"
-    echo "-v --verbose = Show processiong messages"
-    echo "--help    = Display this list"
+    echo "--removebzr   = Remove the .bzr directory so that it can't be used by bazaar"
+    echo "--with-ignore = Convert the Ignore file too"
+    echo "-v --verbose  = Show processiong messages"
+    echo "--help        = Display this list"
     exit
 
   else echo "${x}: unknown argument, type --help to see available arguments"; exit 1; fi
@@ -54,9 +58,10 @@ while bzr revert -r revno:$rev 2> /dev/null; do
   let rev+=1
 done
 
-if [ -f .bzrignore ] then
+if [ -f .bzrignore ] && [ "$with_ignore" = "yes" ] then
   cp  .bzrignore .gitignore
-  git commit -a -m "Adding Ignore file"
+  git add .gitignore
+  git commit -m "Adding Ignore file"
 fi
 
 [ "$removebzr" != "yes" ] && rm -r .bzr
