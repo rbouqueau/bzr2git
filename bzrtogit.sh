@@ -32,7 +32,10 @@ for x in $@; do
   elif [ "$x" = "--help" ]; then
     echo "--removebzr   = Remove the .bzr directory so that it can't be used by bazaar"
     echo "--with-ignore = Convert the Ignore file too"
+<<<<<<< HEAD
     echo "-v --verbose  = Show processiong messages"
+=======
+>>>>>>> Correct errors and add some air to help
     echo "--help        = Display this list"
     exit
 
@@ -58,7 +61,7 @@ while bzr revert -r revno:$rev 2> /dev/null; do
   let rev+=1
 done
 
-if [ -f .bzrignore ] && [ "$with_ignore" = "yes" ] then
+if [ -f .bzrignore ] && [ "$with_ignore" = "yes" ]; then
   cp  .bzrignore .gitignore
   git add .gitignore
   git commit -m "Adding Ignore file"
