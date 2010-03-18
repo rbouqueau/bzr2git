@@ -42,7 +42,7 @@ done
 rev=1
 git init
 
-[ "$verbose" != "yes" ] echo "Start Migration"
+if [ "$verbose" != "no" ] ; then echo "Start Migration" ; fi
 
 while bzr revert -r revno:$rev 2> /dev/null; do
   logentry="`bzr log -r $rev`"
@@ -54,7 +54,15 @@ while bzr revert -r revno:$rev 2> /dev/null; do
   ls -a1 | while read x; do
     if [ "$x" != ".bzr" ] && [ "$x" != "." ] && [ "$x" != ".." ]; then git add "$x"; fi
   done
+  tag_name="`bzr tags -r $rev |  awk '{print $1}' `"
+  
   git commit -a -m "$msg" --author="$committer"
+  if [ -n "$tag_name" ]; then
+    [ "$verbose" != "no" ] && echo "Tag added"
+    git tag $tag_name
+  fi
+
+
   let rev+=1
 done
 
@@ -64,10 +72,10 @@ if [ -f .bzrignore ] && [ "$with_ignore" = "yes" ]; then
   git commit -m "Adding Ignore file"
 fi
 
-[ "$removebzr" != "yes" ] && rm -r .bzr
+[ "$removebzr" = "yes" ] && rm -r .bzr
 
-[ "$verbose" != "yes" ] echo "Start Packing"
+[ "$verbose" != "no" ] && echo "Start Packing"
 #Let's pack the newly created repo
 git gc --aggressive
 
-[ "$verbose" != "yes" ] echo "Migration Successfully ended"
+[ "$verbose" != "no" ] echo "Migration Successfully ended"
