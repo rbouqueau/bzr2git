@@ -78,4 +78,4 @@ fi
 #Let's pack the newly created repo
 git gc --aggressive
 
-[ "$verbose" != "no" ] echo "Migration Successfully ended"
+[ "$verbose" != "no" ] && echo "Migration Successfully ended"
